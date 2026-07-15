@@ -21,3 +21,7 @@ spring:
 
 server:
   port: 8081
+
+jwt:
+  secret: ThisIsMySecretKeyForJwtTokenPleaseChangeItInProduction123456
+  expiration: 3600000

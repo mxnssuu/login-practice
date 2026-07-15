@@ -1,6 +1,7 @@
 package com.example.loginpractice.controller;
 
 import com.example.loginpractice.dto.SignupRequest;
+import com.example.loginpractice.dto.LoginRequest;
 import com.example.loginpractice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,5 +24,11 @@ public class AuthController {
     public ResponseEntity<?> signup(@RequestBody SignupRequest req) {
         UUID id = authService.signup(req);
         return ResponseEntity.ok(Map.of("userId", id.toString()));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+        String token = authService.login(req);
+        return ResponseEntity.ok(Map.of("accessToken", token));
     }
 }

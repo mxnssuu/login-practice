@@ -1,5 +1,7 @@
 package com.example.loginpractice.service;
 
+import com.example.loginpractice.config.JwtUtil;
+import com.example.loginpractice.dto.LoginRequest;
 import com.example.loginpractice.dto.SignupRequest;
 import com.example.loginpractice.entity.AppUser;
 import com.example.loginpractice.entity.Role;
@@ -19,10 +21,11 @@ public class AuthService {
     private final AppUserRepository appUserRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Transactional
     public UUID signup(SignupRequest req) {
-        String email = req.getEmail().toLowerCase();   // CITEXT 대체
+        String email = req.getEmail().toLowerCase();
 
         if (appUserRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다");
@@ -34,12 +37,26 @@ public class AuthService {
         AppUser user = new AppUser(
                 null,
                 email,
-                passwordEncoder.encode(req.getPassword()),   // 암호화
+                passwordEncoder.encode(req.getPassword()),
                 req.getName(),
                 req.getPhone(),
                 role
         );
 
         return appUserRepository.save(user).getUserId();
+    }
+
+    @Transactional(readOnly = true)
+    public String login(LoginRequest req) {
+        String email = req.getEmail().toLowerCase();
+
+        AppUser user = appUserRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다"));
+
+        if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다");
+        }
+
+        return jwtUtil.createToken(user.getEmail(), user.getRole().getCode());
     }
 }
