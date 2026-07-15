@@ -9,9 +9,13 @@ spring:
   h2:
     console:
       enabled: true
+  sql:
+    init:
+      mode: always
   jpa:
     hibernate:
       ddl-auto: create-drop
+    defer-datasource-initialization: true
     show-sql: true
     open-in-view: false
 
